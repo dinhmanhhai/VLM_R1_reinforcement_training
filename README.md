@@ -257,3 +257,74 @@ If you find this project useful, welcome to cite us.
   year={2025}
 }
 ```
+
+---
+
+# 🇻🇳 Hướng dẫn bằng tiếng Việt (Vietnamese Guide)
+
+Dự án **VLM-R1** là một mô hình Vision-Language (Thị giác - Ngôn ngữ) quy mô lớn theo phong cách R1, tập trung vào tính ổn định và khả năng tổng quát hóa. Dự án này áp dụng phương pháp của DeepSeek-R1 vào các tác vụ đa phương thức như Hiểu biểu thức tham chiếu (REC), Phát hiện vật thể (OVD) và Giải toán đa phương thức.
+
+## 1. Giải thích các thành phần chính
+
+- **`src/`**: Chứa mã nguồn chính của mô hình và các module huấn luyện.
+  - `open-r1-multimodal`: Module tùy chỉnh dựa trên Open-R1 để hỗ trợ GRPO (Generalized Relative Policy Optimization) cho dữ liệu đa phương thức.
+  - `eval`: Các script đánh giá mô hình.
+- **`run_scripts/`**: Chứa các script bash để chạy các tác vụ cụ thể:
+  - `run_grpo_rec.sh`: Huấn luyện REC sử dụng thuật toán GRPO.
+  - `run_grpo_rec_lora.sh`: Huấn luyện REC sử dụng LoRA (tiết kiệm VRAM).
+  - `run_grpo_gui.sh`: Huấn luyện trên dữ liệu đa hình ảnh (GUI screenshots).
+- **`ascend_inference/`**: Hỗ trợ triển khai trên phần cứng Huawei Ascend.
+- **`setup.sh`**: Script cài đặt các thư viện phụ thuộc.
+
+## 2. Các bước thiết lập (Setup)
+
+Để bắt đầu, bạn cần cài đặt môi trường Python và các thư viện cần thiết.
+
+### Bước 1: Tạo môi trường Conda
+```bash
+conda create -n vlm-r1 python=3.10
+conda activate vlm-r1
+```
+
+### Bước 2: Chạy script cài đặt
+Script này sẽ cài đặt `open-r1-multimodal` ở chế độ chỉnh sửa (editable) và các thư viện quan trọng như `flash-attn`, `wandb`, `qwen_vl_utils`.
+```bash
+bash setup.sh
+```
+
+## 3. Hướng dẫn chạy Huấn luyện (Training)
+
+Ví dụ với tác vụ **Referring Expression Comprehension (REC)**:
+
+### Chuẩn bị dữ liệu
+1. Tải bộ dữ liệu hình ảnh COCO Train2014 và giải nén.
+2. Tải các file annotation (RefCOCO/+/g) đã được xử lý.
+3. Cập nhật đường dẫn trong `run_scripts/run_grpo_rec.sh`:
+   - `data_paths`: Đường dẫn đến các file `.jsonl` annotation.
+   - `image_folders`: Đường dẫn đến thư mục chứa ảnh COCO.
+
+### Chạy script huấn luyện
+```bash
+bash run_scripts/run_grpo_rec.sh
+```
+
+> [!TIP]
+> Nếu bạn gặp lỗi **CUDA Out of Memory**, hãy giảm `per_device_train_batch_size` trong file script.
+> Sử dụng LoRA (`run_grpo_rec_lora.sh`) nếu GPU của bạn có bộ nhớ hạn chế.
+
+## 4. Hướng dẫn Đánh giá (Evaluation)
+
+Sau khi huấn luyện, bạn có thể kiểm tra hiệu suất của mô hình:
+
+```bash
+cd src/eval
+# Cập nhật đường dẫn model và dữ liệu trong script
+torchrun --nproc_per_node=X test_rec_r1.py
+```
+*(Thay X bằng số GPU bạn có)*
+
+## 5. Các tính năng nâng cao
+- **Multi-image Input**: Hỗ trợ đầu vào nhiều ảnh cùng lúc cho các tác vụ như phân tích thay đổi giao diện (GUI).
+- **Freeze Vision Modules**: Có thể đóng băng phần thị giác để đẩy nhanh tốc độ huấn luyện (`freeze_vision_modules=true`).
+- **LoRA**: Hỗ trợ Fine-tuning hiệu quả về tham số.
+

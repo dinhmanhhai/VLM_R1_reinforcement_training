@@ -1,6 +1,24 @@
 
 # ----------------------- Fix the flash attention bug in the current version of transformers -----------------------
-from transformers.models.qwen2_5_vl.modeling_qwen2_5_vl import Qwen2_5_VLVisionFlashAttention2, apply_rotary_pos_emb_flashatt, flash_attn_varlen_func
+try:
+    from transformers.models.qwen2_5_vl.modeling_qwen2_5_vl import (
+        Qwen2_5VLVisionFlashAttention2 as VisionAttentionClass,
+        apply_rotary_pos_emb_flashatt,
+        flash_attn_varlen_func
+    )
+except ImportError:
+    try:
+        from transformers.models.qwen2_5_vl.modeling_qwen2_5_vl import (
+            Qwen2_5_VLVisionFlashAttention2 as VisionAttentionClass,
+            apply_rotary_pos_emb_flashatt,
+            flash_attn_varlen_func
+        )
+    except ImportError:
+        VisionAttentionClass = None
+        apply_rotary_pos_emb_flashatt = None
+        flash_attn_varlen_func = None
+        print("Warning: Qwen2_5 Vision Attention class not found. Skipping flash attn monkey patch.")
+
 import torch
 from typing import Tuple, Optional
 from transformers.utils import logging
@@ -44,14 +62,32 @@ def qwen2_5vl_vision_flash_attn_forward(
 
 
 def monkey_patch_qwen2_5vl_flash_attn():
-    Qwen2_5_VLVisionFlashAttention2.forward = qwen2_5vl_vision_flash_attn_forward
+    if VisionAttentionClass is not None:
+        VisionAttentionClass.forward = qwen2_5vl_vision_flash_attn_forward
+    else:
+        print("VisionAttentionClass is None, skipping monkey_patch_qwen2_5vl_flash_attn")
 
 
 # ----------------------- Fix the process pending bug when using data mixture of image-text data and pure-text under deepseed zero3-----------------------
-from transformers.models.qwen2_5_vl.modeling_qwen2_5_vl import Qwen2_5_VLCausalLMOutputWithPast
+# ----------------------- Fix the process pending bug when using data mixture of image-text data and pure-text under deepseed zero3-----------------------
+try:
+    from transformers.models.qwen2_5_vl.modeling_qwen2_5_vl import (
+        Qwen2_5VLCausalLMOutputWithPast as OutputClass,
+        Qwen2_5VLForConditionalGeneration as ModelClass
+    )
+except ImportError:
+    try:
+        from transformers.models.qwen2_5_vl.modeling_qwen2_5_vl import (
+            Qwen2_5_VLCausalLMOutputWithPast as OutputClass,
+            Qwen2_5_VLForConditionalGeneration as ModelClass
+        )
+    except ImportError:
+        OutputClass = None
+        ModelClass = None
+        print("Warning: Qwen2_5 VL model/output classes not found. Skipping forward monkey patch.")
+
 from typing import List, Union
 from torch.nn import CrossEntropyLoss
-from transformers.models.qwen2_5_vl.modeling_qwen2_5_vl import Qwen2_5_VLForConditionalGeneration
 def qwen2_5vl_forward(
         self,
         input_ids: torch.LongTensor = None,
@@ -214,7 +250,10 @@ def qwen2_5vl_forward(
         )
 
 def monkey_patch_qwen2_5vl_forward():
-    Qwen2_5_VLForConditionalGeneration.forward = qwen2_5vl_forward
+    if ModelClass is not None:
+        ModelClass.forward = qwen2_5vl_forward
+    else:
+        print("ModelClass is None, skipping monkey_patch_qwen2_5vl_forward")
 
 # ----------------------- Set the Weights only as False in torch.load (In Pytorch 2.6, this is default as True)-----------------------
 from deepspeed.runtime.checkpoint_engine.torch_checkpoint_engine import TorchCheckpointEngine

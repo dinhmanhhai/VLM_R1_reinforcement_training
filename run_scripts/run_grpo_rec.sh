@@ -3,7 +3,7 @@ export REPO_HOME="${PROJECT_ROOT}"
 echo "REPO_HOME: $REPO_HOME"
 # Change the data_paths and image_folders to your own data
 data_paths="/workspace/VLM_R1_reinforcement_training/data/rec_jsons_processed/refcoco_train.jsonl:/workspace/VLM_R1_reinforcement_training/data/rec_jsons_processed/refcocop_train.jsonl:/workspace/VLM_R1_reinforcement_training/data/rec_jsons_processed/refcocog_train.jsonl" 
-image_folders="/workspace/VLM_R1_reinforcement_training/data/train2014:/workspace/VLM_R1_reinforcement_training/data/train2014:/workspace/VLM_R1_reinforcement_training/data/train2014"
+image_folders="/workspace/VLM_R1_reinforcement_training/data:/workspace/VLM_R1_reinforcement_training/data:/workspace/VLM_R1_reinforcement_training/data"
 model_path="Qwen/Qwen2.5-VL-3B-Instruct"
 is_reward_customized_from_vlm_module=True
 echo "data_paths: $data_paths"

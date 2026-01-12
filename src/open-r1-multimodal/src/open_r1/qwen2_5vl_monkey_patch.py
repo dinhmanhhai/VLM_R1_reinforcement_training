@@ -3,6 +3,9 @@
 from transformers.models.qwen2_5_vl.modeling_qwen2_5_vl import Qwen2_5_VLVisionFlashAttention2, apply_rotary_pos_emb_flashatt, flash_attn_varlen_func
 import torch
 from typing import Tuple, Optional
+from transformers.utils import logging
+logger = logging.get_logger(__name__)
+
 def qwen2_5vl_vision_flash_attn_forward(
         self,
         hidden_states: torch.Tensor,
@@ -224,6 +227,3 @@ def weigths_only_load(self, path: str, map_location=None):
 
 def monkey_patch_torch_load():
     TorchCheckpointEngine.load = weigths_only_load
-
-
-

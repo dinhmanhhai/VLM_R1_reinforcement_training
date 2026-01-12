@@ -1,4 +1,9 @@
-from transformers import Glm4vForConditionalGeneration,AutoProcessor
+try:
+    from transformers import Glm4vForConditionalGeneration
+except ImportError:
+    Glm4vForConditionalGeneration = None
+
+from transformers import AutoProcessor
 from typing import Dict, Any, Union
 from trl.data_utils import maybe_apply_chat_template
 import torch
@@ -10,10 +15,6 @@ import os
 from datetime import datetime
 import json
 
-
-
-
-
 class GLMVModule(VLMBaseModule):
     def __init__(self):
         super().__init__()
@@ -22,6 +23,8 @@ class GLMVModule(VLMBaseModule):
         return "glm"
 
     def get_model_class(self, model_id: str, model_init_kwargs: dict):
+        if Glm4vForConditionalGeneration is None:
+            raise ImportError("Glm4vForConditionalGeneration not found in transformers. Please upgrade transformers.")
         model_cls = Glm4vForConditionalGeneration
         return model_cls
     

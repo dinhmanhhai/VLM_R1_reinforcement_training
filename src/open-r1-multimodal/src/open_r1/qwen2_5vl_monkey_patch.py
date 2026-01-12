@@ -69,21 +69,20 @@ def monkey_patch_qwen2_5vl_flash_attn():
 
 
 # ----------------------- Fix the process pending bug when using data mixture of image-text data and pure-text under deepseed zero3-----------------------
-# ----------------------- Fix the process pending bug when using data mixture of image-text data and pure-text under deepseed zero3-----------------------
 try:
     from transformers.models.qwen2_5_vl.modeling_qwen2_5_vl import (
-        Qwen2_5VLCausalLMOutputWithPast as OutputClass,
-        Qwen2_5VLForConditionalGeneration as ModelClass
+        Qwen2_5VLCausalLMOutputWithPast as Qwen2_5_VLCausalLMOutputWithPast,
+        Qwen2_5VLForConditionalGeneration as Qwen2_5_VLForConditionalGeneration
     )
 except ImportError:
     try:
         from transformers.models.qwen2_5_vl.modeling_qwen2_5_vl import (
-            Qwen2_5_VLCausalLMOutputWithPast as OutputClass,
-            Qwen2_5_VLForConditionalGeneration as ModelClass
+            Qwen2_5_VLCausalLMOutputWithPast,
+            Qwen2_5_VLForConditionalGeneration
         )
     except ImportError:
-        OutputClass = None
-        ModelClass = None
+        Qwen2_5_VLCausalLMOutputWithPast = None
+        Qwen2_5_VLForConditionalGeneration = None
         print("Warning: Qwen2_5 VL model/output classes not found. Skipping forward monkey patch.")
 
 from typing import List, Union
@@ -250,10 +249,10 @@ def qwen2_5vl_forward(
         )
 
 def monkey_patch_qwen2_5vl_forward():
-    if ModelClass is not None:
-        ModelClass.forward = qwen2_5vl_forward
+    if Qwen2_5_VLForConditionalGeneration is not None:
+        Qwen2_5_VLForConditionalGeneration.forward = qwen2_5vl_forward
     else:
-        print("ModelClass is None, skipping monkey_patch_qwen2_5vl_forward")
+        print("Qwen2_5_VLForConditionalGeneration is None, skipping monkey_patch_qwen2_5vl_forward")
 
 # ----------------------- Set the Weights only as False in torch.load (In Pytorch 2.6, this is default as True)-----------------------
 from deepspeed.runtime.checkpoint_engine.torch_checkpoint_engine import TorchCheckpointEngine

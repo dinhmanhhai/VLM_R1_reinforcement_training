@@ -40,18 +40,18 @@ if rank == main_rank:
 
 RUN_NAME = "Qwen2.5-VL-3B-Instruct-rec"
 
-MODEL_PATH=f"/training/shz/project/vlm-r1/VLM-R1/checkpoints/rl/{RUN_NAME}/checkpoint-{steps}"
+MODEL_PATH=f"/workspace/VLM_R1_reinforcement_training/checkpoints/rl/{RUN_NAME}/checkpoint-{steps}"
 OUTPUT_PATH="./logs/rec_results_{DATASET}_{RUN_NAME}_{STEPS}.json"
 
 BSZ=2   
-DATA_ROOT = "/training/shz/dataset/vlm-r1/rec_jsons_processed"
+DATA_ROOT = "/workspace/VLM_R1_reinforcement_training/data/rec_jsons_processed"
 
 # TEST_DATASETS = ['refcoco_val', 'refcocop_val', 'refcocog_val']
-# IMAGE_ROOT = "/training/shz/dataset/coco"
+# IMAGE_ROOT = "/workspace/VLM_R1_reinforcement_training/data/train2014"
 
 
 TEST_DATASETS = ['lisa_test']
-IMAGE_ROOT = "/training/shz/dataset/lisa"
+IMAGE_ROOT = "/workspace/VLM_R1_reinforcement_training/data/test"
 
 
 #We recommend enabling flash_attention_2 for better acceleration and memory saving, especially in multi-image and video scenarios.

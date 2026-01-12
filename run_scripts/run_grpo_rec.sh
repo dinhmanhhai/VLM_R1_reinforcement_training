@@ -2,9 +2,9 @@ PROJECT_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 export REPO_HOME="${PROJECT_ROOT}"
 echo "REPO_HOME: $REPO_HOME"
 # Change the data_paths and image_folders to your own data
-data_paths="/training/shz/dataset/vlm-r1/rec_jsonsl_train/refcoco_train.jsonl:/training/shz/dataset/vlm-r1/rec_jsonsl_train/refcocop_train.jsonl:/training/shz/dataset/vlm-r1/rec_jsonsl_train/refcocog_train.jsonl" 
-image_folders="/training/shz/dataset/coco:/training/shz/dataset/coco:/training/shz/dataset/coco"
-model_path="/training/models/Qwen2.5-VL-3B-Instruct"
+data_paths="/workspace/VLM_R1_reinforcement_training/data/rec_jsons_processed/refcoco_train.jsonl:/workspace/VLM_R1_reinforcement_training/data/rec_jsons_processed/refcocop_train.jsonl:/workspace/VLM_R1_reinforcement_training/data/rec_jsons_processed/refcocog_train.jsonl" 
+image_folders="/workspace/VLM_R1_reinforcement_training/data/train2014:/workspace/VLM_R1_reinforcement_training/data/train2014:/workspace/VLM_R1_reinforcement_training/data/train2014"
+model_path="Qwen/Qwen2.5-VL-3B-Instruct"
 is_reward_customized_from_vlm_module=True
 echo "data_paths: $data_paths"
 echo "image_folders: $image_folders"
@@ -21,8 +21,8 @@ export LOG_PATH="${REPO_HOME}/runs/${EXP_NAME}/log/debug_log.$(date +%Y-%m-%d-%H
 
 
 # export WANDB_DISABLED=true
-# CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6
-torchrun --nproc_per_node="8" \
+# CUDA_VISIBLE_DEVICES=0
+torchrun --nproc_per_node="1" \
     --nnodes="1" \
     --node_rank="0" \
     --master_addr="127.0.0.1" \

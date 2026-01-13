@@ -39,6 +39,7 @@ from open_r1.vlm_modules import *
 from typing import Tuple
 from transformers.utils import logging
 from transformers import AutoProcessor, AutoTokenizer
+from transformers.trainer_utils import get_last_checkpoint
 
 from openai import OpenAI
 
@@ -1055,9 +1056,13 @@ def main(script_args, training_args, model_args):
     )
 
     # Train and push the model to the Hub
-    if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
+    # Train and push the model to the Hub
+    last_checkpoint = get_last_checkpoint(training_args.output_dir)
+    if last_checkpoint is not None and pathlib.Path(last_checkpoint).joinpath("trainer_state.json").exists():
         trainer.train(resume_from_checkpoint=True)
     else:
+        if last_checkpoint is not None:
+            logger.warning(f"Checkpoint {last_checkpoint} found but seems corrupted (missing trainer_state.json). NOT resuming from it.")
         trainer.train()
 
     # Save and push to hub

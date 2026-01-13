@@ -457,12 +457,22 @@ class VLMGRPOTrainer(Trainer):
         # Ensure use_cache is disabled
         model.config.use_cache = False
 
+        gradient_checkpointing_kwargs = args.gradient_checkpointing_kwargs or {}
+
+        # Default use_reentrant to False for better performance and stability with modern PyTorch
+        if "use_reentrant" not in gradient_checkpointing_kwargs:
+            gradient_checkpointing_kwargs["use_reentrant"] = False
+
+        # Always enable input require grads if checkpointing is on,
+        # this solves "None of the inputs have requires_grad=True"
+        model.enable_input_require_grads()
+
         # Enable gradient checkpointing on the base model for PEFT
         if is_peft_model(model):
-            model.base_model.gradient_checkpointing_enable()
+            model.base_model.gradient_checkpointing_enable(gradient_checkpointing_kwargs=gradient_checkpointing_kwargs)
         # Enable gradient checkpointing for non-PEFT models
         else:
-            model.gradient_checkpointing_enable()
+            model.gradient_checkpointing_enable(gradient_checkpointing_kwargs=gradient_checkpointing_kwargs)
             try:
                 # For InternVL; these operations are copied from the original training script of InternVL
                 model.language_model.config.use_cache = False
@@ -473,14 +483,6 @@ class VLMGRPOTrainer(Trainer):
                 args.gradient_checkpointing = False
             except:
                 pass
-
-        gradient_checkpointing_kwargs = args.gradient_checkpointing_kwargs or {}
-        use_reentrant = (
-            "use_reentrant" not in gradient_checkpointing_kwargs or gradient_checkpointing_kwargs["use_reentrant"]
-        )
-
-        if use_reentrant:
-            model.enable_input_require_grads()
 
         return model
     

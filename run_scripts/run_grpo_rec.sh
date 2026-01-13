@@ -36,8 +36,8 @@ torchrun --nproc_per_node="1" \
     --image_folders $image_folders \
     --is_reward_customized_from_vlm_module $is_reward_customized_from_vlm_module \
     --task_type $TASK_TYPE \
-    --per_device_train_batch_size 2 \
-    --gradient_accumulation_steps 8 \
+    --per_device_train_batch_size 4 \
+    --gradient_accumulation_steps 4 \
     --gradient_checkpointing true \
     --logging_steps 1 \
     --num_train_epochs 2 \
@@ -46,7 +46,7 @@ torchrun --nproc_per_node="1" \
     --run_name ${EXP_NAME} \
     --data_seed 42 \
     --save_steps 100 \
-    --num_generations 2 \
+    --num_generations 4 \
     --max_completion_length 2048 \
     --reward_funcs accuracy format \
     --beta 0.04 \

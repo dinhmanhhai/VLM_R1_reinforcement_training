@@ -49,6 +49,7 @@ torchrun --nproc_per_node="1" \
     --num_generations 6 \
     --max_completion_length 2048 \
     --reward_funcs accuracy format \
+    --save_total_limit 2 \
     --beta 0.04 \
     --report_to wandb \
     --dataset-name this_is_not_used \
